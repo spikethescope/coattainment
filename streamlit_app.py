@@ -71,7 +71,7 @@ def process_file(uploaded_file, threshold):
 # Streamlit app layout
 st.title("Course Outcome Attainment Analysis")
 # Display the DataFrame as a table
-st.write("### Student Scores Sample format.")
+st.write("### Student Scores Sample format which contains 4 COs. If you require more components add extra columns but follow same format")
 st.write("Please follow it exactly. Maximum marks is specified in brackets. For example CO1 (30) means Max. marks in an assessment is 30.")
 
 st.dataframe(df_students)

@@ -3,6 +3,20 @@ import pandas as pd
 import re
 import io
 
+# Sample data
+data = {
+    "NAME": ["John", "Mathew", "Rema", "Anand", "Yuan"],
+    "ROLL NUMBER": ["F22003", "F22005", "F22011", "F22017", "F22018"],
+    "CO1 (30)": [24, 16, 22, 24, 24],
+    "CO2 (40)": [25, 24, 21, 25, 24],
+    "CO3 (20)": [15, 16, 18, 19, 19],
+    "CO4 (10)": [6, 7, 5, 6, 2]
+}
+
+# Create a DataFrame
+df_students = pd.DataFrame(data)
+
+
 # Function to process the uploaded Excel file
 def process_file(uploaded_file, threshold):
     # Load data from the uploaded Excel file
@@ -56,7 +70,9 @@ def process_file(uploaded_file, threshold):
 
 # Streamlit app layout
 st.title("Course Outcome Attainment Analysis")
-
+# Display the DataFrame as a table
+st.write("### Student Scores")
+st.dataframe(df_students)
 # Input for proficiency threshold
 threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%):", min_value=0.0, max_value=1.0, value=0.60)
 

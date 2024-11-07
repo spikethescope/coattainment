@@ -73,9 +73,11 @@ st.title("Course Outcome Attainment Analysis")
 # Display the DataFrame as a table
 st.write("### Student Scores Sample format.")
 st.write("Please follow it exactly. Maximum marks is specified in brackets. For example CO1 (30) means Max. marks in an assessment is 30.")
+
 st.dataframe(df_students)
+st.write("### CO Details.")
 # Input for proficiency threshold
-threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%):", min_value=0.0, max_value=1.0, value=0.60)
+threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%) Suggested is 60% threshold:", min_value=0.0, max_value=1.0, value=0.60)
 
 # File uploader
 uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])

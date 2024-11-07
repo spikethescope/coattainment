@@ -89,6 +89,7 @@ if st.button("Process File"):
         
         # Display the summary DataFrame
         st.write("### Summary of Course Outcomes:")
+        st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")
         st.dataframe(summary_df)
 
         # Prepare to download the summary as an Excel file

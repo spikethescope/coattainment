@@ -3,14 +3,14 @@ import streamlit as st
 
 def process_co_data(df, scale_value):
     # Extract CO columns and weights
-    co_columns = df.iloc[0, 1:].values  # Skip the first column (CO name) if header is not defined
+    co_columns = df.iloc[0, 1:].values  # Skip the first column for CO names
     print("CO Columns Identified:", co_columns)
     
-    max_marks = df.iloc[1, 1:].astype(float).values  # Max marks (ignore the first column for any labels)
+    max_marks = df.iloc[1, 1:].astype(float).values  # Max marks for each CO
     print("Max Marks:", max_marks)
 
-    # Ensure student marks are extracted accurately
-    student_marks = df.iloc[2:, 1:].astype(float)  # Ensure to skip any non-score headers or labels
+    # Collect student marks starting from the third row
+    student_marks = df.iloc[2:, 1:].astype(float)  
     print("Student Marks Data Frame:\n", student_marks)
     
     # Prepare the grouping for CO scores
@@ -19,7 +19,7 @@ def process_co_data(df, scale_value):
         if co not in co_totals:
             co_totals[co] = []
         co_totals[co].append(max_marks[i])
-        
+    
     print("CO Grouped Totals:", co_totals)
     
     # Calculate total marks for each CO
@@ -29,9 +29,18 @@ def process_co_data(df, scale_value):
     # Prepare DataFrame for output
     co_final_df = pd.DataFrame.from_dict(co_final_scores, orient='index', columns=['Total Marks'])
     
-    # Weight the student marks based on the CO marks
+    # Validate dimensions before matrix operations
+    print(f"Student marks shape: {student_marks.values.shape}")
+    print(f"CO final scores: {list(co_final_scores.values())}")
+    
+    # Ensure compatibility of matrix dimensions for the dot product
     total_co_marks = sum(co_final_scores.values())
-    weighted_student_scores = (student_marks.values @ (list(co_final_scores.values()) / total_co_marks)) * (scale_value / 50)
+    co_weights = list(co_final_scores.values())
+    if len(co_weights) != student_marks.shape[1]:
+        raise ValueError("Mismatch between student marks columns and CO weight length.")
+    
+    weighted_student_scores = (student_marks.values @ (co_weights / total_co_marks)) * (scale_value / 50)
+    print("Weighted Student Scores:", weighted_student_scores)
     
     # Create the output DataFrame
     output_df = pd.DataFrame(weighted_student_scores, columns=['Weighted Score'])
@@ -53,19 +62,23 @@ if uploaded_file:
     st.dataframe(df)
 
     # Process the data
-    co_final_df, output_df = process_co_data(df, scale_value)
-
-    # Display processed results
-    st.write("Total Marks for Each CO:")
-    st.dataframe(co_final_df)
+    try:
+        co_final_df, output_df = process_co_data(df, scale_value)
+        
+        # Display processed results
+        st.write("Total Marks for Each CO:")
+        st.dataframe(co_final_df)
+        
+        st.write("Weighted Scores for Students:")
+        st.dataframe(output_df)
     
-    st.write("Weighted Scores for Students:")
-    st.dataframe(output_df)
+        # Save the processed data to a new Excel file
+        output_file = "processed_scores.xlsx"
+        with pd.ExcelWriter(output_file) as writer:
+            co_final_df.to_excel(writer, sheet_name='CO Totals')
+            output_df.to_excel(writer, sheet_name='Student Scores')
+        
+        st.download_button("Download Processed Excel File", data=output_file, file_name=output_file)
 
-    # Save the processed data to a new Excel file
-    output_file = "processed_scores.xlsx"
-    with pd.ExcelWriter(output_file) as writer:
-        co_final_df.to_excel(writer, sheet_name='CO Totals')
-        output_df.to_excel(writer, sheet_name='Student Scores')
-    
-    st.download_button("Download Processed Excel File", data=output_file, file_name=output_file)
+    except Exception as e:
+        st.error(f"An error occurred: {e}")

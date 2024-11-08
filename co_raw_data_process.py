@@ -4,8 +4,8 @@ import streamlit as st
 def process_co_data(df, scale_value):
     # Extract CO columns and weights
     co_columns = df.columns[1:]  # Skip the first column (CO name)
-    max_marks = df.iloc[0, 1:].astype(float)  # Max marks
-    student_marks = df.iloc[1:-1, 1:].astype(float)  # Student data
+    max_marks = df.iloc[1, 1:].astype(float)  # Max marks
+    student_marks = df.iloc[2:-1, 1:].astype(float)  # Student data
     
     # Grouping the CO scores
     co_totals = {}

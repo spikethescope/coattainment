@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import io
 
-def process_co_data(df, co_weights):
+def process_co_data(df, co_weights, round_digits=2):
     # Extract CO labels, max marks, and student marks
     co_labels = df.iloc[0].tolist()
     max_marks = df.iloc[1].tolist()
@@ -23,7 +23,7 @@ def process_co_data(df, co_weights):
     total_co_marks = sum(co_totals.values())
     
     # Calculate weighted max marks for each CO
-    weighted_max_marks = {co: total_co_marks * co_weights[co] for co in co_totals.keys()}
+    weighted_max_marks = {co: round(total_co_marks * co_weights[co], round_digits) for co in co_totals.keys()}
     
     # Process student marks
     processed_student_marks = []
@@ -33,15 +33,15 @@ def process_co_data(df, co_weights):
             co_indices = [i for i, label in enumerate(co_labels) if label == co]
             student_co_total = sum(student[i] for i in co_indices)
             max_co_total = sum(marks)
-            student_co_marks[co] = (student_co_total / max_co_total) * weighted_max_marks[co]
+            student_co_marks[co] = round((student_co_total / max_co_total) * weighted_max_marks[co], round_digits)
         processed_student_marks.append(student_co_marks)
     
     # Prepare output data
     output_data = []
     output_data.append(["CO"] + list(co_totals.keys()))
-    output_data.append(["Weighted Max Marks"] + [round(weighted_max_marks[co], 2) for co in co_totals.keys()])
+    output_data.append(["Weighted Max Marks"] + [weighted_max_marks[co] for co in co_totals.keys()])
     for i, student in enumerate(processed_student_marks, start=1):
-        output_data.append([f"Student {i}"] + [round(mark, 2) for mark in student.values()])
+        output_data.append([f"Student {i}"] + list(student.values()))
     
     # Create output DataFrame
     output_df = pd.DataFrame(output_data[1:], columns=output_data[0])
@@ -77,6 +77,9 @@ if uploaded_file is not None:
         else:
             co_weights[co] = col2.number_input(f"Weight for {co}", min_value=0.0, max_value=1.0, value=1.0/len(co_components), step=0.01, format="%.2f")
     
+    # Input for rounding digits
+    round_digits = st.number_input("Number of decimal places for rounding", min_value=0, max_value=6, value=2)
+    
     # Check if weights sum to 1
     total_weight = sum(co_weights.values())
     if abs(total_weight - 1.0) > 1e-6:  # Allow for small floating-point errors
@@ -84,7 +87,7 @@ if uploaded_file is not None:
     else:
         if st.button("Process Data"):
             # Process the data
-            output_df = process_co_data(df, co_weights)
+            output_df = process_co_data(df, co_weights, round_digits)
             
             # Display output data
             st.subheader("Processed Data")
@@ -108,6 +111,7 @@ st.markdown("""
 1. Upload an Excel file containing CO data.
 2. The file should have CO labels in the first row, max marks in the second row, and student marks in subsequent rows.
 3. Enter the weightage for each CO component. The sum of all weights should be 1.
-4. Click 'Process Data' to see the results.
-5. You can download the processed data as an Excel file.
+4. Specify the number of decimal places for rounding.
+5. Click 'Process Data' to see the results.
+6. You can download the processed data as an Excel file.
 """)

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import io
 
-def process_co_data(df, total_marks):
+def process_co_data(df, co_weights):
     # Extract CO labels, max marks, and student marks
     co_labels = df.iloc[0].tolist()
     max_marks = df.iloc[1].tolist()
@@ -19,13 +19,6 @@ def process_co_data(df, total_marks):
     # Calculate total marks for each CO group
     co_totals = {co: sum(marks) for co, marks in co_groups.items()}
     
-    # Calculate scaling factor
-    total_co_marks = sum(co_totals.values())
-    scaling_factor = total_marks / total_co_marks
-    
-    # Scale CO totals
-    scaled_co_totals = {co: total * scaling_factor for co, total in co_totals.items()}
-    
     # Process student marks
     processed_student_marks = []
     for student in student_marks:
@@ -34,15 +27,14 @@ def process_co_data(df, total_marks):
             co_indices = [i for i, label in enumerate(co_labels) if label == co]
             student_co_total = sum(student[i] for i in co_indices)
             max_co_total = sum(marks)
-            scaled_co_total = scaled_co_totals[co]
-            student_co_marks[co] = (student_co_total / max_co_total) * scaled_co_total
+            student_co_marks[co] = (student_co_total / max_co_total) * co_weights[co] * 100
         processed_student_marks.append(student_co_marks)
     
     # Prepare output data
     output_data = []
     output_data.append(["CO"] + list(co_totals.keys()))
     output_data.append(["Max Marks"] + list(co_totals.values()))
-    output_data.append(["Scaled Max Marks"] + [round(mark, 2) for mark in scaled_co_totals.values()])
+    output_data.append(["Weightage"] + [co_weights[co] for co in co_totals.keys()])
     for i, student in enumerate(processed_student_marks, start=1):
         output_data.append([f"Student {i}"] + [round(mark, 2) for mark in student.values()])
     
@@ -65,35 +57,52 @@ if uploaded_file is not None:
     st.subheader("Input Data")
     st.dataframe(df)
     
-    # Get total marks from user
-    total_marks = st.number_input("Enter total marks to scale to:", min_value=1, value=50)
+    # Get unique CO components
+    co_components = sorted(set(df.iloc[0]))
     
-    if st.button("Process Data"):
-        # Process the data
-        output_df = process_co_data(df, total_marks)
-        
-        # Display output data
-        st.subheader("Processed Data")
-        st.dataframe(output_df)
-        
-        # Provide download link for processed data
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            output_df.to_excel(writer, index=False)
-        output.seek(0)
-        
-        st.download_button(
-            label="Download Processed Data",
-            data=output,
-            file_name="processed_co_data.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+    # Create input fields for CO weights
+    st.subheader("Enter weightage for each CO component")
+    st.write("The sum of all weights should be 1.")
+    
+    co_weights = {}
+    col1, col2 = st.columns(2)
+    for i, co in enumerate(co_components):
+        if i % 2 == 0:
+            co_weights[co] = col1.number_input(f"Weight for {co}", min_value=0.0, max_value=1.0, value=1.0/len(co_components), step=0.01, format="%.2f")
+        else:
+            co_weights[co] = col2.number_input(f"Weight for {co}", min_value=0.0, max_value=1.0, value=1.0/len(co_components), step=0.01, format="%.2f")
+    
+    # Check if weights sum to 1
+    total_weight = sum(co_weights.values())
+    if abs(total_weight - 1.0) > 1e-6:  # Allow for small floating-point errors
+        st.warning(f"The sum of weights is {total_weight:.2f}. It should be 1.0.")
+    else:
+        if st.button("Process Data"):
+            # Process the data
+            output_df = process_co_data(df, co_weights)
+            
+            # Display output data
+            st.subheader("Processed Data")
+            st.dataframe(output_df)
+            
+            # Provide download link for processed data
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                output_df.to_excel(writer, index=False)
+            output.seek(0)
+            
+            st.download_button(
+                label="Download Processed Data",
+                data=output,
+                file_name="processed_co_data.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
 st.markdown("""
 ### Instructions:
 1. Upload an Excel file containing CO data.
 2. The file should have CO labels in the first row, max marks in the second row, and student marks in subsequent rows.
-3. Enter the total marks you want to scale to.
+3. Enter the weightage for each CO component. The sum of all weights should be 1.
 4. Click 'Process Data' to see the results.
 5. You can download the processed data as an Excel file.
 """)

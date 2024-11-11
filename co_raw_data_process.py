@@ -22,8 +22,8 @@ def process_co_data(df, co_weights, round_digits=2):
     # Calculate total of all CO marks
     total_co_marks = sum(co_totals.values())
     
-    # Calculate weighted max marks for each CO
-    weighted_max_marks = {co: round(total_co_marks * co_weights[co], round_digits) for co in co_totals.keys()}
+    # Calculate weighted max marks for each CO (without rounding)
+    weighted_max_marks = {co: total_co_marks * co_weights[co] for co in co_totals.keys()}
     
     # Process student marks
     processed_student_marks = []
@@ -33,6 +33,7 @@ def process_co_data(df, co_weights, round_digits=2):
             co_indices = [i for i, label in enumerate(co_labels) if label == co]
             student_co_total = sum(student[i] for i in co_indices)
             max_co_total = sum(marks)
+            # Round only the student marks
             student_co_marks[co] = round((student_co_total / max_co_total) * weighted_max_marks[co], round_digits)
         processed_student_marks.append(student_co_marks)
     

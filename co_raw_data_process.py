@@ -19,6 +19,12 @@ def process_co_data(df, co_weights):
     # Calculate total marks for each CO group
     co_totals = {co: sum(marks) for co, marks in co_groups.items()}
     
+    # Calculate total of all CO marks
+    total_co_marks = sum(co_totals.values())
+    
+    # Calculate weighted max marks for each CO
+    weighted_max_marks = {co: total_co_marks * co_weights[co] for co in co_totals.keys()}
+    
     # Process student marks
     processed_student_marks = []
     for student in student_marks:
@@ -27,14 +33,13 @@ def process_co_data(df, co_weights):
             co_indices = [i for i, label in enumerate(co_labels) if label == co]
             student_co_total = sum(student[i] for i in co_indices)
             max_co_total = sum(marks)
-            student_co_marks[co] = (student_co_total / max_co_total) * co_weights[co] * 100
+            student_co_marks[co] = (student_co_total / max_co_total) * weighted_max_marks[co]
         processed_student_marks.append(student_co_marks)
     
     # Prepare output data
     output_data = []
     output_data.append(["CO"] + list(co_totals.keys()))
-    output_data.append(["Max Marks"] + list(co_totals.values()))
-    output_data.append(["Weightage"] + [co_weights[co] for co in co_totals.keys()])
+    output_data.append(["Weighted Max Marks"] + [round(weighted_max_marks[co], 2) for co in co_totals.keys()])
     for i, student in enumerate(processed_student_marks, start=1):
         output_data.append([f"Student {i}"] + [round(mark, 2) for mark in student.values()])
     

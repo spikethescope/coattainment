@@ -270,7 +270,7 @@ if uploaded_file is not None:
                 # Compute attainment based on user selection
                 if st.button("Calculate Attainment"):
                     try:
-                        summary_df = compute_attainment_only_threshold(
+                        summary_df = compute_attainment_both_options(
                             st.session_state.output_df,
                             threshold=threshold,
                             method=method.lower()

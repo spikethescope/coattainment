@@ -4,6 +4,53 @@ import pandas as pd
 import numpy as np
 import io
 
+def compute_attainment(output_df, threshold):
+    # Extract the CO labels and weighted max marks from the output DataFrame
+    co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
+    weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
+
+    # Create a dictionary for max marks per CO
+    max_marks = {co: max_mark for co, max_mark in zip(co_labels, weighted_max_marks)}
+
+    # Define expected proficiency thresholds based on the user-specified threshold
+    thresholds = {co: threshold * max_marks[co] for co in max_marks}
+
+    # Extract student marks rows, starting from row 2 (excluding headers)
+    student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
+    total_students = len(student_marks_df)
+
+    # Count students who met or exceeded the expected proficiencies for each CO
+    results = {}
+    for co, min_score in thresholds.items():
+        results[co] = (student_marks_df[co_labels.index(co)] >= min_score).sum()
+
+    # Calculate Course Outcome attainment percentages
+    attainment_percentages = {co: (count / total_students) * 100 for co, count in results.items()}
+
+    # Determine CO attainment levels
+    attainment_levels = {}
+    for co, percentage in attainment_percentages.items():
+        if percentage >= 80:
+            attainment_levels[co] = 3
+        elif percentage >= 70:
+            attainment_levels[co] = 2
+        else:
+            attainment_levels[co] = 1
+
+    # Prepare a summary of outcomes
+    summary = {
+        'CO': co_labels,
+        'Expected Proficiency (%)': [threshold * 100] * len(max_marks),
+        'No of Students Scored Expected Marks': [results[co] for co in co_labels],
+        'Course Outcome Attainment (%)': [attainment_percentages[co] for co in co_labels],
+        'CO Attainment Level': [attainment_levels[co] for co in co_labels]
+    }
+
+    # Create a DataFrame for the summary
+    summary_df = pd.DataFrame(summary)
+    
+    return summary_df
+    
 def process_co_data(df, co_weights, round_digits=2):
     # Find the row with CO labels
     co_row = None
@@ -133,6 +180,33 @@ if uploaded_file is not None:
                     label="Download Processed Data",
                     data=output,
                     file_name="processed_co_data.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+                # Streamlit app layout
+                st.title("Course Outcome Attainment Analysis")
+                # Display the DataFrame as a table
+                st.write("### CO Details.")
+                # Input for proficiency threshold
+                threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%) Suggested is 60% threshold:", min_value=0.0, max_value=1.0, value=0.60)
+        
+                #Calculate Attainment
+                summary_df = compute_attainment(output_df, threshold)
+                # Display the summary DataFrame
+                st.write("### Summary of Course Outcomes:")
+                st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")
+                st.dataframe(summary_df)
+        
+                # Prepare to download the summary as an Excel file
+                buffer = io.BytesIO()
+                with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                    summary_df.to_excel(writer, index=False, sheet_name='Summary')
+                
+                buffer.seek(0)  # Move to the beginning of the BytesIO buffer
+        
+                st.download_button(
+                    label="Download Summary as Excel",
+                    data=buffer,
+                    file_name="course_outcome_summary.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 

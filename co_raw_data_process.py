@@ -80,7 +80,7 @@ if uploaded_file is not None:
     st.dataframe(df)
     
     # Find CO labels
-    co_row = next((i for i, row in df.iterrows() if any(co in str(cell) for co in ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6'] for cell in row))), None)
+    co_row = next((i for i, row in df.iterrows() if any(co in str(cell) for co in ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6'] for cell in row)), None)
     if co_row is None:
         st.error("No CO labels found in the file")
     else:

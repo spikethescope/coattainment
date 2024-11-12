@@ -168,13 +168,13 @@ if uploaded_file is not None:
     st.dataframe(df)
     attain_level_3_min = st.number_input(
                         "Enter minimum value for Attainment Level 3:",
-                        min_value=0.0,
-                        max_value=1.0,
+                        min_value=0,
+                        max_value=100,
                         value=80
                     )
     attain_level_2_min = st.number_input(
                         "Enter minimum value for Attainment Level 2:",
-                        min_value=0.0,
+                        min_value=0,
                         max_value=attain_level_3_min,
                         value=60
                     )

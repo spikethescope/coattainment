@@ -3,11 +3,68 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
-
+import re
 import pandas as pd
 import re
 
-def compute_attainment(output_df, threshold):
+def compute_attainment_both_options(output_df, threshold, method="threshold"):
+    # Extract the CO labels and weighted max marks from the output DataFrame
+    co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
+    weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
+
+    # Create a dictionary for max marks per CO
+    max_marks = {co: max_mark for co, max_mark in zip(co_labels, weighted_max_marks)}
+
+    # Define expected proficiency thresholds based on the user-specified threshold or average method
+    if method == "threshold":
+        # Use threshold-based attainment
+        thresholds = {co: threshold * max_marks[co] for co in max_marks}
+    elif method == "average":
+        # Use average score of students for each CO as the threshold
+        student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
+        student_marks_df.columns = co_labels  # Set column names to CO labels
+        thresholds = student_marks_df.mean().to_dict()  # Set thresholds to averages per CO
+    else:
+        raise ValueError("Invalid method. Choose either 'threshold' or 'average'.")
+
+    # Extract student marks rows, starting from row 2 (excluding headers)
+    student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
+    student_marks_df.columns = co_labels  # Set column names to CO labels
+    total_students = len(student_marks_df)
+
+    # Count students who met or exceeded the expected proficiencies for each CO
+    results = {}
+    for co, min_score in thresholds.items():
+        results[co] = (student_marks_df[co] >= min_score).sum()
+
+    # Calculate Course Outcome attainment percentages
+    attainment_percentages = {co: (count / total_students) * 100 for co, count in results.items()}
+
+    # Determine CO attainment levels
+    attainment_levels = {}
+    for co, percentage in attainment_percentages.items():
+        if percentage >= 80:
+            attainment_levels[co] = 3
+        elif percentage >= 70:
+            attainment_levels[co] = 2
+        else:
+            attainment_levels[co] = 1
+
+    # Prepare a summary of outcomes
+    summary = {
+        'CO': co_labels,
+        'Expected Proficiency (%)': [threshold * 100 if method == "threshold" else "Average Score"] * len(max_marks),
+        'No of Students Scored Expected Marks': [results[co] for co in co_labels],
+        'Course Outcome Attainment (%)': [attainment_percentages[co] for co in co_labels],
+        'CO Attainment Level': [attainment_levels[co] for co in co_labels]
+    }
+
+    # Create a DataFrame for the summary
+    summary_df = pd.DataFrame(summary)
+    
+    return summary_df
+
+def compute_attainment_only_threshold(output_df, threshold):
     # Extract the CO labels and weighted max marks from the output DataFrame
     co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
     weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
@@ -190,11 +247,17 @@ if uploaded_file is not None:
                 st.title("Course Outcome Attainment Analysis")
                 # Display the DataFrame as a table
                 st.write("### CO Details.")
-                # Input for proficiency threshold
-                threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%) Suggested is 60% threshold:", min_value=0.0, max_value=1.0, value=0.60)
-        
-                #Calculate Attainment
-                summary_df = compute_attainment(output_df, threshold)
+                    # Attainment method selection
+                method = st.radio("Choose attainment calculation method:", ("Threshold", "Average"))
+            
+                # Set threshold value input only if "Threshold" method is chosen
+                threshold = None
+                if method == "Threshold":
+                    # Input for proficiency threshold
+                    threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%) Suggested is 60% threshold:", min_value=0.0, max_value=1.0, value=0.60)
+                
+                summary_df = compute_attainment_both_options(output_df, threshold=threshold, method=method.lower())                            # Compute attainment based on user selection
+               
                 # Display the summary DataFrame
                 st.write("### Summary of Course Outcomes:")
                 st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")

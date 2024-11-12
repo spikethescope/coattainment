@@ -87,6 +87,7 @@ if uploaded_file is not None:
         co_labels = [col for col in df.iloc[co_row] if isinstance(col, str) and col.startswith('CO')]
         
         # Create input fields for CO weights
+        st.write(f"The list of CO labels are {co_labels})
         st.subheader("Enter weightage for each CO component")
         st.write("The sum of all weights should be 1.")
         

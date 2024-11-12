@@ -22,12 +22,16 @@ def process_co_data(df, co_weights, round_digits=2):
     student_marks = df.iloc[co_row + 2:].values.tolist()
     
     # Get unique CO components while maintaining order
-    unique_cos = []
-    seen = set()
-    for co in co_labels:
-        if isinstance(co, str) and co.startswith('CO') and co not in seen:
-            unique_cos.append(co)
-            seen.add(co)
+    # Get unique CO components and sort them in 'CO1', 'CO2', etc. order
+    unique_cos = sorted({col for col in co_labels if isinstance(col, str) and col.startswith('CO')},
+                        key=lambda x: int(x[2:]))  # Sort by numeric part of CO labels
+    
+    #unique_cos = []
+    #seen = set()
+    #for co in co_labels:
+     #   if isinstance(co, str) and co.startswith('CO') and co not in seen:
+      #      unique_cos.append(co)
+       #     seen.add(co)
     
     # Group COs and their corresponding marks
     co_groups = {co: [] for co in unique_cos}

@@ -260,7 +260,7 @@ if uploaded_file is not None:
                # Compute attainment based on user selection
                 if st.button("Calculate Attainment"):
                     try:
-                        summary_df = compute_attainment_both_options(output_df, threshold=threshold, method=method.lower())
+                        summary_df = compute_attainment_only_threshold(output_df, threshold=threshold, method=method.lower())
                         st.write("Attainment Summary:")
                         st.dataframe(summary_df)
                         # Display the summary DataFrame

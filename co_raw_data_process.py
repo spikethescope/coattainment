@@ -152,7 +152,7 @@ data = {
 sample_df = pd.DataFrame(data)
 # Streamlit app
 st.title('Course Outcome (CO) Attainment Computation')
-st.subheader("Excel input format below. Note second row is Max. Marks for that Asessment.")
+st.subheader("Excel input format below. Note second row is Max. Marks for that Assessment.")
 # Display the DataFrame in Streamlit
 st.write(sample_df)
 

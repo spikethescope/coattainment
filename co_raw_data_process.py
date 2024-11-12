@@ -257,33 +257,54 @@ if uploaded_file is not None:
                     threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%) Suggested is 60% threshold:", min_value=0.0, max_value=1.0, value=0.60)
                 
                                         
-               # Compute attainment based on user selection
-                if st.button("Calculate Attainment"):
-                    try:
-                        summary_df = compute_attainment_only_threshold(output_df, threshold=threshold, method=method.lower())
-                        st.write("Attainment Summary:")
-                        st.dataframe(summary_df)
-                        # Display the summary DataFrame
-                        st.write("### Summary of Course Outcomes:")
-                        st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")
-                        st.dataframe(summary_df)
-                    except ValueError as e:
-                        st.error(f"Error: {e}")
+               if "output_df" in st.session_state:
+                    st.write("### CO Details")
+            
+                    # Attainment method selection
+                    method = st.radio("Choose attainment calculation method:", ("Threshold", "Average"))
+            
+                    # Set threshold value input only if "Threshold" method is chosen
+                    threshold = None
+                    if method == "Threshold":
+                        threshold = st.number_input(
+                            "Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%):", 
+                            min_value=0.0, 
+                            max_value=1.0, 
+                            value=0.60
+                        )
+            
+                    # Compute attainment based on user selection
+                    if st.button("Calculate Attainment"):
+                        try:
+                            summary_df = compute_attainment_only_threshold(
+                                st.session_state["output_df"], 
+                                threshold=threshold, 
+                                method=method.lower()
+                            )
+                            st.write("Attainment Summary:")
+                            
+                            # Display the summary DataFrame
+                            st.write("### Summary of Course Outcomes")
+                            st.write("## Current Attainment Levels: 3 if Attainment >= 80%, 2 if >= 70%, 1 otherwise.")
+                            st.dataframe(summary_df)
+            
+                            # Download the summary as an Excel file
+                            buffer = io.BytesIO()
+                            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                                summary_df.to_excel(writer, index=False, sheet_name='Summary')
+                            buffer.seek(0)  # Move to the beginning of the BytesIO buffer
+            
+                            st.download_button(
+                                label="Download Summary as Excel",
+                                data=buffer,
+                                file_name="course_outcome_summary.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
+                        except ValueError as e:
+                            st.error(f"Error: {e}")
                 
         
-                # Prepare to download the summary as an Excel file
-                buffer = io.BytesIO()
-                with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                    summary_df.to_excel(writer, index=False, sheet_name='Summary')
                 
-                buffer.seek(0)  # Move to the beginning of the BytesIO buffer
-        
-                st.download_button(
-                    label="Download Summary as Excel",
-                    data=buffer,
-                    file_name="course_outcome_summary.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
 
 st.markdown("""
 ### Instructions:

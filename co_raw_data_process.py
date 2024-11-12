@@ -7,7 +7,7 @@ import re
 import pandas as pd
 import re
 
-def compute_attainment_both_options(output_df, threshold, attain_level_3_min=80,attain_level_2_min=60,method="threshold"):
+def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_level_2_min=60,threshold, method="threshold"):
     # Extract the CO labels and weighted max marks from the output DataFrame
     co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
     weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
@@ -248,10 +248,10 @@ if uploaded_file is not None:
                 if st.button("Calculate Attainment"):
                     try:
                         summary_df = compute_attainment_both_options(
-                            st.session_state.output_df,
-                            threshold=threshold,                            
+                            st.session_state.output_df,                                                       
                             attain_level_3_min,
                             attain_level_2_min,
+                            threshold=threshold, 
                             method=method.lower()
                         )
                         st.write("Attainment Summary:")

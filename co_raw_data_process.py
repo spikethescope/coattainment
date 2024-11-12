@@ -21,9 +21,13 @@ def process_co_data(df, co_weights, round_digits=2):
     max_marks = df.iloc[co_row + 1].tolist()
     student_marks = df.iloc[co_row + 2:].values.tolist()
     
-    # Get unique CO components and sort them
-    unique_cos = sorted([col for col in co_labels if isinstance(col, str) and col.startswith('CO')], 
-                        key=lambda x: int(x[2:]))
+    # Get unique CO components while maintaining order
+    unique_cos = []
+    seen = set()
+    for co in co_labels:
+        if isinstance(co, str) and co.startswith('CO') and co not in seen:
+            unique_cos.append(co)
+            seen.add(co)
     
     # Group COs and their corresponding marks
     co_groups = {co: [] for co in unique_cos}
@@ -52,19 +56,18 @@ def process_co_data(df, co_weights, round_digits=2):
             student_co_marks[co] = round((student_co_total / max_co_total) * weighted_max_marks[co], round_digits)
         processed_student_marks.append(student_co_marks)
     
-    # Prepare output data
+    # Prepare output data with unique CO labels
     output_data = headers + [
         ["CO"] + unique_cos,
-        ["Weighted Max Marks"] + [weighted_max_marks.get(co, "") if co in unique_cos else "" for co in co_labels]
+        ["Weighted Max Marks"] + [weighted_max_marks.get(co, "") for co in unique_cos]
     ]
     for i, student in enumerate(processed_student_marks, start=1):
-        output_data.append([f"Student {i}"] + [student.get(co, "") if co in unique_cos else "" for co in co_labels])
+        output_data.append([f"Student {i}"] + [student.get(co, "") for co in unique_cos])
     
     # Create output DataFrame
     output_df = pd.DataFrame(output_data)
     
     return output_df
-
 # Streamlit app
 st.title('Course Outcome (CO) Data Processor')
 

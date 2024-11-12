@@ -54,7 +54,7 @@ def process_co_data(df, co_weights, round_digits=2):
     
     # Prepare output data
     output_data = headers + [
-        ["CO"] + co_labels,
+        ["CO"] + unique_cos,
         ["Weighted Max Marks"] + [weighted_max_marks.get(co, "") if co in unique_cos else "" for co in co_labels]
     ]
     for i, student in enumerate(processed_student_marks, start=1):

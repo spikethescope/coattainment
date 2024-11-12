@@ -8,7 +8,7 @@ def process_co_data(df, co_weights, round_digits=2):
     # Find the row with CO labels
     co_row = None
     for i, row in df.iterrows():
-        if any('CO' in str(cell) for cell in row):
+        if any(co in str(cell) for co in ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6'] for cell in row)::
             co_row = i
             break
     

@@ -258,8 +258,8 @@ if uploaded_file is not None:
                         
                         # Display the summary DataFrame
                         st.write("### Summary of Course Outcomes")
-                        st.write(f"### Attainment Levels: 1 if Attainment score Less than {attain_level_2_min}% Students attain the outcome, 2 if Attainment score if between {attain_level_2_min}% and {attain_level_3_min}% students attain outcome, 
-                                3 if more than {attain_level_3_min}% achieve the outcome.")
+                        st.write(f"### Attainment Levels: 1 if Attainment score Less than {attain_level_2_min}% Students attain the outcome, 2 if Attainment score if between {attain_level_2_min}% and {attain_level_3_min}% students attain outcome,\ 
+                        3 if more than {attain_level_3_min}% achieve the outcome.")
                         
                         st.dataframe(summary_df)
 

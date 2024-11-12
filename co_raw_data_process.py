@@ -256,8 +256,15 @@ if uploaded_file is not None:
                     # Input for proficiency threshold
                     threshold = st.number_input("Enter Proficiency Threshold (as a decimal, e.g., 0.60 for 60%) Suggested is 60% threshold:", min_value=0.0, max_value=1.0, value=0.60)
                 
-                summary_df = compute_attainment_both_options(output_df, threshold=threshold, method=method.lower())                            # Compute attainment based on user selection
-               
+                                        
+               # Compute attainment based on user selection
+                if st.button("Calculate Attainment"):
+                    try:
+                        summary_df = compute_attainment_both_options(output_df, threshold=threshold, method=method.lower())
+                        st.write("Attainment Summary:")
+                        st.dataframe(summary_df)
+                    except ValueError as e:
+                        st.error(f"Error: {e}")
                 # Display the summary DataFrame
                 st.write("### Summary of Course Outcomes:")
                 st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")

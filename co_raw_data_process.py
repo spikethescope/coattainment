@@ -142,7 +142,9 @@ if 'output_df' not in st.session_state:
 
 # Streamlit app
 st.title('Course Outcome (CO) Attainment Computation')
-
+st.subheader("Excel input format below. Note second row is Max. Marks for that Asessment.")
+# Display the DataFrame in Streamlit
+st.write(sample_df)
 
 # File upload
 uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")

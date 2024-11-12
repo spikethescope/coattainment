@@ -64,54 +64,7 @@ def compute_attainment_both_options(output_df, threshold, method="threshold"):
     
     return summary_df
 
-def compute_attainment_only_threshold(output_df, threshold):
-    # Extract the CO labels and weighted max marks from the output DataFrame
-    co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
-    weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
-
-    # Create a dictionary for max marks per CO
-    max_marks = {co: max_mark for co, max_mark in zip(co_labels, weighted_max_marks)}
-
-    # Define expected proficiency thresholds based on the user-specified threshold
-    thresholds = {co: threshold * max_marks[co] for co in max_marks}
-
-    # Extract student marks rows, starting from row 2 (excluding headers)
-    student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
-    student_marks_df.columns = co_labels  # Set column names to CO labels
-    total_students = len(student_marks_df)
-
-    # Count students who met or exceeded the expected proficiencies for each CO
-    results = {}
-    for co, min_score in thresholds.items():
-        results[co] = (student_marks_df[co] >= min_score).sum()  # Use column name directly
-
-    # Calculate Course Outcome attainment percentages
-    attainment_percentages = {co: (count / total_students) * 100 for co, count in results.items()}
-
-    # Determine CO attainment levels
-    attainment_levels = {}
-    for co, percentage in attainment_percentages.items():
-        if percentage >= 80:
-            attainment_levels[co] = 3
-        elif percentage >= 70:
-            attainment_levels[co] = 2
-        else:
-            attainment_levels[co] = 1
-
-    # Prepare a summary of outcomes
-    summary = {
-        'CO': co_labels,
-        'Expected Proficiency (%)': [threshold * 100] * len(max_marks),
-        'No of Students Scored Expected Marks': [results[co] for co in co_labels],
-        'Course Outcome Attainment (%)': [attainment_percentages[co] for co in co_labels],
-        'CO Attainment Level': [attainment_levels[co] for co in co_labels]
-    }
-
-    # Create a DataFrame for the summary
-    summary_df = pd.DataFrame(summary)
-    
-    return summary_df
-    
+   
 def process_co_data(df, co_weights, round_digits=2):
     # Find the row with CO labels
     co_row = None
@@ -188,7 +141,8 @@ if 'output_df' not in st.session_state:
     st.session_state.output_df = None
 
 # Streamlit app
-st.title('Course Outcome (CO) Data Processor')
+st.title('Course Outcome (CO) Attainment Computation')
+
 
 # File upload
 uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
@@ -209,9 +163,9 @@ if uploaded_file is not None:
         co_labels = list({col for col in df.iloc[co_row] if isinstance(col, str) and col.startswith('CO')})
 
         # Create input fields for CO weights
-        st.write(f"The list of CO labels are {co_labels}")
-        st.subheader("Enter weightage for each CO component")
-        st.write("The sum of all weights should be 1.")
+        #st.write(f"The list of CO labels are {co_labels}")
+        st.subheader("Enter weightage for each CO component. Weightage is the weight of the CO component relative to the 
+        entire course. Thus the sum of all weights should be 1.")      
         
         co_weights = {}
         col1, col2 = st.columns(2)
@@ -236,6 +190,7 @@ if uploaded_file is not None:
                 
                 # Display output data
                 st.subheader("Processed Data")
+                st.write("Download Scaled Marks for Each CO")
                 st.dataframe(st.session_state.output_df)
                 
                 # Provide download link for processed data

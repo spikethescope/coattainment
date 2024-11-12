@@ -263,12 +263,13 @@ if uploaded_file is not None:
                         summary_df = compute_attainment_both_options(output_df, threshold=threshold, method=method.lower())
                         st.write("Attainment Summary:")
                         st.dataframe(summary_df)
+                        # Display the summary DataFrame
+                        st.write("### Summary of Course Outcomes:")
+                        st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")
+                        st.dataframe(summary_df)
                     except ValueError as e:
                         st.error(f"Error: {e}")
-                # Display the summary DataFrame
-                st.write("### Summary of Course Outcomes:")
-                st.write("## Current Attaiment Values are based on: 3 if Attainment percentage >= 80, 2 if >= 70, 1 otherwise.")
-                st.dataframe(summary_df)
+                
         
                 # Prepare to download the summary as an Excel file
                 buffer = io.BytesIO()

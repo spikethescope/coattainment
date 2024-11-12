@@ -180,6 +180,13 @@ def process_co_data(df, co_weights, round_digits=2):
     output_df = pd.DataFrame(output_data)
     
     return output_df
+
+# Initialize session state variables
+if 'processed' not in st.session_state:
+    st.session_state.processed = False
+if 'output_df' not in st.session_state:
+    st.session_state.output_df = None
+
 # Streamlit app
 st.title('Course Outcome (CO) Data Processor')
 
@@ -222,18 +229,19 @@ if uploaded_file is not None:
         if abs(total_weight - 1.0) > 1e-6:  # Allow for small floating-point errors
             st.warning(f"The sum of weights is {total_weight:.2f}. It should be 1.0.")
         else:
-            if st.button("Process Data"):
+            if st.button("Process Data") or st.session_state.processed:
                 # Process the data
-                output_df = process_co_data(df, co_weights, round_digits)
+                st.session_state.output_df = process_co_data(df, co_weights, round_digits)
+                st.session_state.processed = True
                 
                 # Display output data
                 st.subheader("Processed Data")
-                st.dataframe(output_df)
+                st.dataframe(st.session_state.output_df)
                 
                 # Provide download link for processed data
                 output = io.BytesIO()
                 with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    output_df.to_excel(writer, index=False, header=False)
+                    st.session_state.output_df.to_excel(writer, index=False, header=False)
                 output.seek(0)
                 
                 st.download_button(
@@ -242,9 +250,6 @@ if uploaded_file is not None:
                     file_name="processed_co_data.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
-                
-                # Store output_df in session state
-                st.session_state["output_df"] = output_df
 
                 # Attainment calculation section
                 st.subheader("Course Outcome Attainment Analysis")
@@ -266,7 +271,7 @@ if uploaded_file is not None:
                 if st.button("Calculate Attainment"):
                     try:
                         summary_df = compute_attainment_only_threshold(
-                            output_df,
+                            st.session_state.output_df,
                             threshold=threshold,
                             method=method.lower()
                         )
@@ -291,8 +296,6 @@ if uploaded_file is not None:
                         )
                     except ValueError as e:
                         st.error(f"Error: {e}")
-                
-        
                 
 
 st.markdown("""

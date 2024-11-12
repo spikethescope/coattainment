@@ -7,7 +7,7 @@ import re
 import pandas as pd
 import re
 
-def compute_attainment_both_options(output_df, threshold, method="threshold"):
+def compute_attainment_both_options(output_df, threshold, method="threshold", attain_level_3_min=80,attain_level_2_min=60):
     # Extract the CO labels and weighted max marks from the output DataFrame
     co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
     weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
@@ -43,9 +43,9 @@ def compute_attainment_both_options(output_df, threshold, method="threshold"):
     # Determine CO attainment levels
     attainment_levels = {}
     for co, percentage in attainment_percentages.items():
-        if percentage >= 80:
+        if percentage >= attain_level_3_min:
             attainment_levels[co] = 3
-        elif percentage >= 70:
+        elif percentage >= attain_level_2_min:
             attainment_levels[co] = 2
         else:
             attainment_levels[co] = 1
@@ -166,7 +166,18 @@ if uploaded_file is not None:
     # Display input data
     st.subheader("Input Data")
     st.dataframe(df)
-    
+    attain_level_3_min = st.number_input(
+                        "Enter minimum value for Attainment Level 3:",
+                        min_value=0.0,
+                        max_value=1.0,
+                        value=80
+                    )
+    attain_level_2_min = st.number_input(
+                        "Enter minimum value for Attainment Level 2:",
+                        min_value=0.0,
+                        max_value=attain_level_3_min,
+                        value=60
+                    )
     # Find CO labels
     co_row = next((i for i, row in df.iterrows() if any(co in str(cell) for co in ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6'] for cell in row)), None)
     if co_row is None:
@@ -239,13 +250,16 @@ if uploaded_file is not None:
                         summary_df = compute_attainment_both_options(
                             st.session_state.output_df,
                             threshold=threshold,
-                            method=method.lower()
+                            method=method.lower(),
+                            attain_level_3_min,
+                            attain_level_2_min
                         )
                         st.write("Attainment Summary:")
                         
                         # Display the summary DataFrame
                         st.write("### Summary of Course Outcomes")
-                        st.write("## Current Attainment Levels: 3 if Attainment >= 80%, 2 if >= 70%, 1 otherwise.")
+                        st.write("### Current Attainment Levels: 1 if Attainment score Less than 60% Students attain the outcome, 2 if Attainment score if between 60% and 80% students attain outcome, 3 if more than 80% achieve the outcome.")
+                        
                         st.dataframe(summary_df)
 
                         # Download the summary as an Excel file

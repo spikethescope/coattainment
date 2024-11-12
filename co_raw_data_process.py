@@ -164,8 +164,7 @@ if uploaded_file is not None:
 
         # Create input fields for CO weights
         #st.write(f"The list of CO labels are {co_labels}")
-        st.subheader("Enter weightage for each CO component. Weightage is the weight of the CO component relative to the 
-        entire course. Thus the sum of all weights should be 1.")      
+        st.subheader("Enter weightage for each CO component. Weightage is the weight of the CO component relative to the entire course. Thus the sum of all weights should be 1.")      
         
         co_weights = {}
         col1, col2 = st.columns(2)

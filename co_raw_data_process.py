@@ -139,7 +139,17 @@ if 'processed' not in st.session_state:
     st.session_state.processed = False
 if 'output_df' not in st.session_state:
     st.session_state.output_df = None
-
+# Create the data for the DataFrame
+data = {
+    'CO2': [10, 9, 9, 9],
+    'CO1': [10, 8, 9, 4],
+    'CO2_2': [10, 7, 9, 9],
+    'CO2_3': [10, 7, 8, 7],
+    'CO2_4': [10, 8, 9, 8],
+    'CO3': [10, 8, 8, 7],
+    'CO2_5': [10, 10, 9, 6]
+}
+sample_df = pd.DataFrame(data)
 # Streamlit app
 st.title('Course Outcome (CO) Attainment Computation')
 st.subheader("Excel input format below. Note second row is Max. Marks for that Asessment.")

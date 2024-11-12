@@ -84,8 +84,9 @@ if uploaded_file is not None:
     if co_row is None:
         st.error("No CO labels found in the file")
     else:
-        co_labels = [col for col in df.iloc[co_row] if isinstance(col, str) and col.startswith('CO')]
-        
+        #co_labels = [col for col in df.iloc[co_row] if isinstance(col, str) and col.startswith('CO')]
+        co_labels = list({col for col in df.iloc[co_row] if isinstance(col, str) and col.startswith('CO')})
+
         # Create input fields for CO weights
         st.write(f"The list of CO labels are {co_labels}")
         st.subheader("Enter weightage for each CO component")

@@ -18,12 +18,11 @@ def compute_attainment(output_df, threshold):
     # Extract student marks rows, starting from row 2 (excluding headers)
     student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
     total_students = len(student_marks_df)
-
-    # Count students who met or exceeded the expected proficiencies for each CO
+    # Count students who met or exceeded the expected proficiencies
     results = {}
     for co, min_score in thresholds.items():
-        results[co] = (student_marks_df[co_labels.index(co)] >= min_score).sum()
-
+        results[co] = (student_marks_df[co] >= min_score).sum()  # Use column name directly
+    
     # Calculate Course Outcome attainment percentages
     attainment_percentages = {co: (count / total_students) * 100 for co, count in results.items()}
 

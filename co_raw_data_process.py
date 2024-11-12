@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import io
 
+import pandas as pd
+import re
+
 def compute_attainment(output_df, threshold):
     # Extract the CO labels and weighted max marks from the output DataFrame
     co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
@@ -17,12 +20,14 @@ def compute_attainment(output_df, threshold):
 
     # Extract student marks rows, starting from row 2 (excluding headers)
     student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
+    student_marks_df.columns = co_labels  # Set column names to CO labels
     total_students = len(student_marks_df)
-    # Count students who met or exceeded the expected proficiencies
+
+    # Count students who met or exceeded the expected proficiencies for each CO
     results = {}
     for co, min_score in thresholds.items():
         results[co] = (student_marks_df[co] >= min_score).sum()  # Use column name directly
-    
+
     # Calculate Course Outcome attainment percentages
     attainment_percentages = {co: (count / total_students) * 100 for co, count in results.items()}
 

@@ -283,7 +283,7 @@ st.markdown("""
 ### Instructions:
 1. Upload an Excel file containing CO data.
 2. The file should have CO labels in a row, with max marks in the row below, and student marks in subsequent rows. Any headers above the CO labels will be included in the output.
-3. Enter the weightage for each CO component. The sum of all weights should be 1.
+3. Enter the Attainment Level Percentages and then enter the weightage for each CO component. The sum of all weights should be 1.
 4. Specify the number of decimal places for rounding student marks.
 5. Click 'Process Data' to see the results.
 6. You can download the processed data as an Excel file.

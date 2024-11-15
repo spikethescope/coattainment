@@ -288,12 +288,11 @@ if uploaded_file is not None:
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                         st.session_state.summary_df = summary_df
-                        st.write(st.session_state.summary_df)
+                        
                     except ValueError as e:
                         st.error(f"Error: {e}")
                 if st.button("Draw Histogram"):
                     try:
-                        st.write(st.session_state.summary_df)
                         df = st.session_state.summary_df                                                       
                          
                         st.write("### Data Preview")
@@ -338,6 +337,21 @@ if uploaded_file is not None:
                         # Display the chart
                         st.write("### Histogram")
                         st_echarts(options=options, height="400px")
+                        option = {
+                                      xAxis: {
+                                        type: 'category',
+                                        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                                      },
+                                      yAxis: {
+                                        type: 'value'
+                                      },
+                                      series: [
+                                        {
+                                          data: [120, 200, 150, 80, 70, 110, 130],
+                                          type: 'bar'
+                                        }
+                                      ]
+                                   }
                     except ValueError as e:
                         st.error(f"Error: {e}")    
 

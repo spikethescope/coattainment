@@ -326,6 +326,15 @@ if uploaded_file is not None:
                                 }
                             ],
                             "legend": {"data": ["Average Score", "Percentage"], "top": "10%"},
+                            "toolbox": {
+                                            "show": True,
+                                            "feature": {
+                                                "saveAsImage": {
+                                                    "type": "jpeg",  # Specifies saving as JPEG
+                                                    "name": "Category_Histogram",
+                                                },
+                                            },
+                                        },
                         }
                         
                         # Display the chart

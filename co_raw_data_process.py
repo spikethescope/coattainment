@@ -298,9 +298,9 @@ if uploaded_file is not None:
                         st.dataframe(df)
                         
                         # Prepare data for ECharts
-                        categories = df["Category"].tolist()
-                        scores = df["Average Score"].tolist()
-                        percentages = df["Percentage"].tolist()
+                        categories = df["CO"].tolist()
+                        scores = df["CO Attainment Level"].tolist()
+                        percentages = df["Course Outcome Attainment (%)"].tolist()
                         
                         # Options for ECharts
                         options = {

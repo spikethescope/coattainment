@@ -289,7 +289,7 @@ if uploaded_file is not None:
                         )
                     except ValueError as e:
                         st.error(f"Error: {e}")
-                 if st.button("Draw Histogram"):
+                if st.button("Draw Histogram"):
                      try:
                         df = st.session_state.summary_df                                                       
                          

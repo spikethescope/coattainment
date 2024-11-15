@@ -7,7 +7,7 @@ import re
 import pandas as pd
 import re
 
-def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_level_2_min=60,threshold=0.6, method="threshold"):
+def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_level_2_min=60,attain_level_1_min=50,threshold=0.6, method="threshold"):
     # Extract the CO labels and weighted max marks from the output DataFrame
     co_labels = output_df.iloc[0, 1:].tolist()  # Skipping the first column (CO label row)
     weighted_max_marks = output_df.iloc[1, 1:].tolist()  # Extracting weighted max marks
@@ -47,8 +47,10 @@ def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_leve
             attainment_levels[co] = 3
         elif percentage >= attain_level_2_min:
             attainment_levels[co] = 2
-        else:
+        elif percentage >= attain_level_1_min:
             attainment_levels[co] = 1
+        else:
+            attainment_levels[co] = 0
 
     # Prepare a summary of outcomes
     summary = {
@@ -178,6 +180,12 @@ if uploaded_file is not None:
                         max_value=attain_level_3_min,
                         value=60
                     )
+    attain_level_1_min = st.number_input(
+                        "Enter minimum value for Attainment Level 1:",
+                        min_value=0,
+                        max_value=attain_level_2_min,
+                        value=50
+                    )
     # Find CO labels
     co_row = next((i for i, row in df.iterrows() if any(co in str(cell) for co in ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6'] for cell in row)), None)
     if co_row is None:
@@ -251,6 +259,7 @@ if uploaded_file is not None:
                             st.session_state.output_df,                                                       
                             attain_level_3_min,
                             attain_level_2_min,
+                            attain_level_1_min,
                             threshold=threshold, 
                             method=method.lower()
                         )

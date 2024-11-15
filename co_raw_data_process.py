@@ -292,6 +292,7 @@ if uploaded_file is not None:
                         st.error(f"Error: {e}")
                 if st.button("Draw Histogram"):
                     try:
+                        st.write(st.session_state.summary_df)
                         df = st.session_state.summary_df                                                       
                          
                         st.write("### Data Preview")

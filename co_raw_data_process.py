@@ -302,7 +302,7 @@ if uploaded_file is not None:
                         # Prepare data for ECharts
                         categories = df["CO"].tolist()
                         scores = df["CO Attainment Level"].tolist()
-                        percentages = df["Course Outcome Attainment (%)"].tolist()
+                        
                         
                         # Options for ECharts
                         options = {
@@ -319,17 +319,11 @@ if uploaded_file is not None:
                             },
                             "series": [
                                 {
-                                    "name": "Average Score",
+                                    "name": "attainment levels",
                                     "type": "bar",
                                     "data": scores,
                                     "label": {"show": True, "position": "top"},
-                                },
-                                {
-                                    "name": "Percentage",
-                                    "type": "bar",
-                                    "data": percentages,
-                                    "label": {"show": True, "position": "top"},
-                                },
+                                }
                             ],
                             "legend": {"data": ["Average Score", "Percentage"], "top": "10%"},
                         }

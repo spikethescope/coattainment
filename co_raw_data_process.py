@@ -287,6 +287,7 @@ if uploaded_file is not None:
                             file_name="course_outcome_summary.xlsx",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
+                        st.session_state.summary_df = summary_df
                     except ValueError as e:
                         st.error(f"Error: {e}")
                 if st.button("Draw Histogram"):

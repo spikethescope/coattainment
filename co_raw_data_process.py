@@ -6,6 +6,8 @@ import io
 import re
 import pandas as pd
 import re
+from streamlit_echarts import st_echarts
+
 
 def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_level_2_min=60,attain_level_1_min=50,threshold=0.6, method="threshold"):
     # Extract the CO labels and weighted max marks from the output DataFrame

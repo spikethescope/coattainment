@@ -290,7 +290,7 @@ if uploaded_file is not None:
                     except ValueError as e:
                         st.error(f"Error: {e}")
                 if st.button("Draw Histogram"):
-                     try:
+                    try:
                         df = st.session_state.summary_df                                                       
                          
                         st.write("### Data Preview")
@@ -335,6 +335,8 @@ if uploaded_file is not None:
                         # Display the chart
                         st.write("### Histogram")
                         st_echarts(options=options, height="400px")
+                    except ValueError as e:
+                        st.error(f"Error: {e}")    
 
 st.markdown("""
 ### Instructions:

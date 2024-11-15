@@ -288,6 +288,7 @@ if uploaded_file is not None:
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                         st.session_state.summary_df = summary_df
+                        st.write(st.session_state.summary_df)
                     except ValueError as e:
                         st.error(f"Error: {e}")
                 if st.button("Draw Histogram"):

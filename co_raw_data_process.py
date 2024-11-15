@@ -306,7 +306,7 @@ if uploaded_file is not None:
                         
                         # Options for ECharts
                         options = {
-                            "title": {"text": "Category Histogram", "left": "center"},
+                            "title": {"text": "CO Attainment Levels", "left": "center"},
                             "tooltip": {"trigger": "axis"},
                             "xAxis": {
                                 "type": "category",
@@ -330,22 +330,7 @@ if uploaded_file is not None:
                         
                         # Display the chart
                         st.write("### Histogram")
-                        st_echarts(options=options, height="400px")
-                        option = {
-                                      xAxis: {
-                                        type: 'category',
-                                        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                                      },
-                                      yAxis: {
-                                        type: 'value'
-                                      },
-                                      series: [
-                                        {
-                                          data: [120, 200, 150, 80, 70, 110, 130],
-                                          type: 'bar'
-                                        }
-                                      ]
-                                   }
+                        st_echarts(options=options, height="400px")                        
                     except ValueError as e:
                         st.error(f"Error: {e}")    
 

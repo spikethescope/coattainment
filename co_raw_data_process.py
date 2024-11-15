@@ -143,6 +143,8 @@ if 'processed' not in st.session_state:
     st.session_state.processed = False
 if 'output_df' not in st.session_state:
     st.session_state.output_df = None
+if 'summary_df' not in st.session_state:
+    st.session_state.summary_df = None
 # Create the data for the DataFrame
 data = {
     'CO2': [10, 9, 9, 9],
@@ -287,7 +289,52 @@ if uploaded_file is not None:
                         )
                     except ValueError as e:
                         st.error(f"Error: {e}")
-                
+                 if st.button("Draw Histogram"):
+                     try:
+                        df = st.session_state.summary_df                                                       
+                         
+                        st.write("### Data Preview")
+                        
+                        st.dataframe(df)
+                        
+                        # Prepare data for ECharts
+                        categories = df["Category"].tolist()
+                        scores = df["Average Score"].tolist()
+                        percentages = df["Percentage"].tolist()
+                        
+                        # Options for ECharts
+                        options = {
+                            "title": {"text": "Category Histogram", "left": "center"},
+                            "tooltip": {"trigger": "axis"},
+                            "xAxis": {
+                                "type": "category",
+                                "data": categories,
+                                "name": "Categories",
+                            },
+                            "yAxis": {
+                                "type": "value",
+                                "name": "Values",
+                            },
+                            "series": [
+                                {
+                                    "name": "Average Score",
+                                    "type": "bar",
+                                    "data": scores,
+                                    "label": {"show": True, "position": "top"},
+                                },
+                                {
+                                    "name": "Percentage",
+                                    "type": "bar",
+                                    "data": percentages,
+                                    "label": {"show": True, "position": "top"},
+                                },
+                            ],
+                            "legend": {"data": ["Average Score", "Percentage"], "top": "10%"},
+                        }
+                        
+                        # Display the chart
+                        st.write("### Histogram")
+                        st_echarts(options=options, height="400px")
 
 st.markdown("""
 ### Instructions:

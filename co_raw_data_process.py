@@ -26,7 +26,7 @@ def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_leve
         student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
         student_marks_df.columns = co_labels  # Set column names to CO labels
         thresholds = student_marks_df.mean().to_dict()  # Set thresholds to averages per CO
-        st.write(f"thresholds calculated: {thresholds}")
+        st.write(f"Thresholds calculated: {thresholds}")
     else:
         raise ValueError("Invalid method. Choose either 'threshold' or 'average'.")
 

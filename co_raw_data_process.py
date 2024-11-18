@@ -21,6 +21,7 @@ def compute_attainment_both_options(output_df, attain_level_3_min=80,attain_leve
     if method == "threshold":
         # Use threshold-based attainment
         thresholds = {co: threshold * max_marks[co] for co in max_marks}
+        st.write(f"Thresholds calculated: {thresholds}")
     elif method == "average":
         # Use average score of students for each CO as the threshold
         student_marks_df = output_df.iloc[2:, 1:]  # Skip the first column with student names
